@@ -22,9 +22,7 @@ lazy val client = (project in file("client")).settings(commonSettings).settings(
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
   dependsOn(sharedJs)
 
-lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).settings(commonSettings).settings(
-  libraryDependencies += "com.typesafe.play" %% "play-json" % "2.6.6"
-)
+lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).settings(commonSettings)
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 

@@ -4,6 +4,7 @@
 
 # Home page
 GET        /                             ch.epfl.polygamedev.tbfights.controllers.Application.index
+GET        /ws                           ch.epfl.polygamedev.tbfights.controllers.Application.socket
 
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)

@@ -18,7 +18,6 @@ class WebSocketConnector(url: String) extends Connector {
 
   ws.onmessage = {
     event =>
-      println(event.data)
       val data = Json.parse(event.data.toString)
       val result = Json.fromJson[OutMessage](data)
       result match {

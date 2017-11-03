@@ -9,12 +9,12 @@ import play.api.libs.json.{JsError, JsSuccess, Json}
 trait Connector {
   def send(inMessage: InMessage): Unit
   def ! (inMessage: InMessage): Unit = send(inMessage)
-  def listen(f: OutMessage => Unit): Unit
+  def listen(f: PartialFunction[OutMessage, Unit]): Unit
 }
 
 class WebSocketConnector(url: String) extends Connector {
   private val ws = new WebSocket(url)
-  private var listeners: Seq[OutMessage => Unit] = Seq.empty
+  private var listeners: Seq[PartialFunction[OutMessage,Unit]] = Seq.empty
 
   ws.onmessage = {
     event =>
@@ -34,7 +34,7 @@ class WebSocketConnector(url: String) extends Connector {
   }
   def send(inMessage: InMessage): Unit = ws.send(Json.toJson(inMessage).toString)
 
-  def listen(f: OutMessage => Unit): Unit = listeners :+= f
+  def listen(f: PartialFunction[OutMessage, Unit]): Unit = listeners :+= f
 }
 
 object Connector {

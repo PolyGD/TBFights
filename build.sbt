@@ -18,7 +18,8 @@ lazy val client = (project in file("client")).settings(commonSettings).settings(
   scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.9.3",
-    "com.typesafe.play" %%% "play-json" % "2.6.7"
+    "com.typesafe.play" %%% "play-json" % "2.6.7",
+    "com.definitelyscala" %%% "scala-js-phaser" % "1.1.0"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
   dependsOn(sharedJs)
@@ -30,6 +31,7 @@ lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 lazy val commonSettings = Seq(
+  resolvers += Resolver.jcenterRepo,
   scalaVersion := "2.12.2",
   organization := "ch.epfl.polygamedev"
 )

@@ -2,7 +2,7 @@ package ch.epfl.polygamedev.tbfights
 
 import ch.epfl.polygamedev.tbfights.messages.{Ping, Pong}
 import ch.epfl.polygamedev.tbfights.shared.SharedMessages
-import com.definitelyscala.phaser.{Game, Phaser, State}
+import com.definitelyscala.phaser.{Game, Phaser, State, Tilemap}
 import org.scalajs.dom
 import org.scalajs.dom.raw.{HTMLButtonElement, HTMLInputElement}
 
@@ -23,13 +23,23 @@ object ScalaJSExample {
     val game = new Game(500, 500, Phaser.CANVAS, "gameArea")
     val battleState = new State {
       override def preload(game: Game): Unit = {
-        game.load.tilemap("badMap", "versionedAssets/maps/badmap.csv") //CSV is default
-        game.load.image("placeholder","versionedAssets/images/our-art/placeholder.png")
-        game.load.image("tile-grass","versionedAssets/images/our-art/tiles/grass.png")
+        val TILED_JSON = 1
+        game.load.tilemap("badMap", "versionedAssets/maps/badmap.json", null, TILED_JSON)
+        game.load.image("placeholder", "versionedAssets/images/our-art/placeholder.png")
+        game.load.image("grass","versionedAssets/images/our-art/tiles/grass.png")
       }
 
-      override def create(game: Game): Unit = {
+      var map: Tilemap = _
 
+      override def create(game: Game): Unit = {
+        map = game.add.tilemap("badMap")
+        map.addTilesetImage("placeholder")
+        map.addTilesetImage("grass")
+
+        val layer1 = map.createLayer("Tile Layer 1")
+        val layer2 = map.createLayer("Tile Layer 2")
+
+        layer1.resizeWorld()
       }
 
       override def update(game: Game): Unit = {

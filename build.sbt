@@ -6,6 +6,8 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
   compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
   libraryDependencies ++= Seq(
     "com.vmunier" %% "scalajs-scripts" % "1.1.1",
+    "org.webjars.npm" % "phaser-ce" % "2.8.5",
+    "org.webjars" %% "webjars-play" % "2.6.1",
     guice,
     specs2 % Test
   ),

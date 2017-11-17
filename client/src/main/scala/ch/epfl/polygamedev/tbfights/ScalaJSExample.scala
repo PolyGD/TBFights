@@ -35,7 +35,7 @@ object ScalaJSExample {
 
       var map: Tilemap = _
       var battleState: BattleState = BattleState.example1
-      var troops: Map[Position,Sprite] = Map.empty
+      var troops: Map[TroopId,Sprite] = Map.empty
       var seletectedTroop: Option[TroopId] = None
 
       override def create(game: Game): Unit = {
@@ -51,12 +51,12 @@ object ScalaJSExample {
         layer1.resizeWorld()
 
         troops = battleState.troops.map {
-          case (pos@Position(x, y), TroopState(id, troop)) =>
+          case (Position(x, y), TroopState(id, troop)) =>
             // head starts at the tile above
             val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
             sprite.inputEnabled = true
             sprite.events.onInputDown.add(troopClicked _, sprite, 0, id.id)
-            pos -> sprite
+            id -> sprite
         }
       }
 
@@ -77,12 +77,29 @@ object ScalaJSExample {
         println(s"Map clicked at $rawX,$rawY")
         val x = (rawX / 32).toInt
         val y = (rawY / 32).toInt
+        val target = Position(x, y)
         println(s"Estimated square at $x,$y")
         seletectedTroop.foreach {
           troop =>
             println(s"attempting to move $troop to $x,$y")
-
+            // TODO do not use Option.get
+            val troopPosition = battleState.troopPosition(troop).get
+            battleState.withMove(troopPosition,target) match {
+              case Some(newState) =>
+                animateMove(troop, troopPosition, target)
+                battleState = newState
+                println("Move successful")
+              case None => println("Move failed")
+            }
         }
+      }
+
+      def animateMove(troopId: TroopId,from: Position, to: Position) = {
+        //TODO animate
+        //TODO do not use map.apply
+        val sprite = troops(troopId)
+        sprite.x = to.x * 32
+        sprite.y = (to.y - 1) * 32
       }
 
       override def update(game: Game): Unit = {

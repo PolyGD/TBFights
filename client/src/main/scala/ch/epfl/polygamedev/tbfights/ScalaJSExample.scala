@@ -1,11 +1,13 @@
 package ch.epfl.polygamedev.tbfights
 
-import ch.epfl.polygamedev.tbfights.battle.{BattleState, BattleUnitState, HumanFlamethrower, Position}
+import ch.epfl.polygamedev.tbfights.battle._
 import ch.epfl.polygamedev.tbfights.messages.{Ping, Pong}
 import ch.epfl.polygamedev.tbfights.shared.SharedMessages
 import com.definitelyscala.phaser._
 import org.scalajs.dom
 import org.scalajs.dom.raw.{HTMLButtonElement, HTMLInputElement}
+
+import scala.scalajs.js
 
 object ScalaJSExample {
 
@@ -34,6 +36,7 @@ object ScalaJSExample {
       var map: Tilemap = _
       var battleState: BattleState = BattleState.example1
       var troops: Map[Position,Sprite] = Map.empty
+      var seletectedTroop: Option[TroopId] = None
 
       override def create(game: Game): Unit = {
         map = game.add.tilemap("badMap")
@@ -45,11 +48,24 @@ object ScalaJSExample {
 
         layer1.resizeWorld()
 
-        troops = battleState.units.map {
-          case (pos@Position(x, y), BattleUnitState(unit)) =>
+        troops = battleState.troops.map {
+          case (pos@Position(x, y), TroopState(id, troop)) =>
             // head starts at the tile above
-            val sprite = game.add.sprite(32 * x, 32 * (y - 1), unit.resourceName)
+            val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
+            sprite.inputEnabled = true
+            sprite.events.onInputDown.add(troopClicked _, sprite, 0, id.id)
             pos -> sprite
+        }
+      }
+
+      def troopClicked(sprite: Sprite, self: Sprite, id: Int): Unit = {
+        val troop = TroopId(id)
+        seletectedTroop = if (seletectedTroop.contains(troop)) {
+          println("None selected")
+          None
+        } else {
+          println(s"Selected: $troop")
+          Some(troop)
         }
       }
 

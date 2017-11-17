@@ -5,6 +5,9 @@ case class TroopId(id: Int)
 case class TroopState(id: TroopId, troop: Troop)
 
 case class BattleState(map: BattleMap, troops: Map[Position, TroopState]) {
+  def troopPosition(id: TroopId): Option[Position] = troops.collectFirst {
+    case (position, TroopState(`id`, _)) => position
+  }
   def withMove(from: Position, to: Position): Option[BattleState] = if (!map.isInBounds(from) || !map.isInBounds(to)) {
     // one of the positions out of bounds
     None

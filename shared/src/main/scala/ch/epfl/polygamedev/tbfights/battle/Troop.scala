@@ -1,10 +1,10 @@
 package ch.epfl.polygamedev.tbfights.battle
 
-sealed trait BattleUnit {
+sealed trait Troop {
   def name: String
   def resourceName = name
 }
 
-case object HumanFlamethrower extends BattleUnit {
+case object HumanFlamethrower extends Troop {
   def name = "human1"
 }

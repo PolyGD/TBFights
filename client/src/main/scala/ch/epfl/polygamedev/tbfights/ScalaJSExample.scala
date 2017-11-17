@@ -1,5 +1,6 @@
 package ch.epfl.polygamedev.tbfights
 
+import ch.epfl.polygamedev.tbfights.battle.{BattleState, BattleUnitState, HumanFlamethrower, Position}
 import ch.epfl.polygamedev.tbfights.messages.{Ping, Pong}
 import ch.epfl.polygamedev.tbfights.shared.SharedMessages
 import com.definitelyscala.phaser._
@@ -31,7 +32,8 @@ object ScalaJSExample {
       }
 
       var map: Tilemap = _
-      var troops: Seq[Sprite] = Seq.empty
+      var battleState: BattleState = BattleState.example1
+      var troops: Map[Position,Sprite] = Map.empty
 
       override def create(game: Game): Unit = {
         map = game.add.tilemap("badMap")
@@ -43,13 +45,12 @@ object ScalaJSExample {
 
         layer1.resizeWorld()
 
-        def addHumanAtTile(x: Int, y: Int) = {
-          // head starts at the tile above
-          game.add.sprite(32 * x, 32 * (y - 1), "human1")
+        troops = battleState.units.map {
+          case (pos@Position(x, y), BattleUnitState(unit)) =>
+            // head starts at the tile above
+            val sprite = game.add.sprite(32 * x, 32 * (y - 1), unit.resourceName)
+            pos -> sprite
         }
-
-        troops :+= addHumanAtTile(1, 2)
-        troops :+= addHumanAtTile(2, 4)
       }
 
       override def update(game: Game): Unit = {

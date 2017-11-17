@@ -45,6 +45,8 @@ object ScalaJSExample {
 
         val layer1 = map.createLayer("Tile Layer 1")
         val layer2 = map.createLayer("Tile Layer 2")
+        layer1.inputEnabled = true
+        layer1.events.onInputDown.add(mapClicked _, layer1, 0)
 
         layer1.resizeWorld()
 
@@ -66,6 +68,20 @@ object ScalaJSExample {
         } else {
           println(s"Selected: $troop")
           Some(troop)
+        }
+      }
+
+      def mapClicked(mapLayer: TilemapLayer, self: TilemapLayer): Unit = {
+        val rawX = game.input.activePointer.x
+        val rawY = game.input.activePointer.y
+        println(s"Map clicked at $rawX,$rawY")
+        val x = (rawX / 32).toInt
+        val y = (rawY / 32).toInt
+        println(s"Estimated square at $x,$y")
+        seletectedTroop.foreach {
+          troop =>
+            println(s"attempting to move $troop to $x,$y")
+
         }
       }
 

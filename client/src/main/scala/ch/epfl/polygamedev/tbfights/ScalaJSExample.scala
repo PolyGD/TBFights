@@ -89,6 +89,8 @@ object ScalaJSExample {
                 animateMove(troop, troopPosition, target)
                 battleState = newState
                 println("Move successful")
+                seletectedTroop = None
+                println("Troop deselected")
               case None => println("Move failed")
             }
         }

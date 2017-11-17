@@ -83,7 +83,7 @@ object ScalaJSExample {
             println(s"attempting to move $troop to $x,$y")
             // TODO do not use Option.get
             val troopPosition = battleState.troopPosition(troop).get
-            battleState.withMove(troopPosition, target) match {
+            battleState.withMove(troop, troopPosition, target) match {
               case Some(newState) =>
                 animateMove(troop, troopPosition, target)
                 battleState = newState

@@ -1,26 +1,31 @@
 package ch.epfl.polygamedev.tbfights.battle
 
 case class Position(x: Int, y: Int)
+
 case class TroopState(id: TroopId, troop: Troop)
 
 case class BattleState(map: BattleMap, troops: Map[Position, TroopState]) {
   def troopPosition(id: TroopId): Option[Position] = troops.collectFirst {
     case (position, TroopState(`id`, _)) => position
   }
-  def withMove(from: Position, to: Position): Option[BattleState] = if (!map.isInBounds(from) || !map.isInBounds(to)) {
-    // one of the positions out of bounds
-    None
-  } else if (troops.isDefinedAt(to)) {
-    // there is already something at the target location
-    None
-  } else {
-    val oldUnits = this.troops
-    // do not move if there is nothing to move
-    oldUnits.get(from).map {
-      toBeMoved =>
-        copy(troops = oldUnits - from + (to -> toBeMoved))
+
+  def withMove(who: TroopId, from: Position, to: Position): Option[BattleState] =
+    if (!troopPosition(who).contains(from) || !map.isInBounds(from) || !map.isInBounds(to)) {
+      // the troop shold be where we expect
+      // one of the positions out of bounds
+      None
+    } else if (troops.isDefinedAt(to)) {
+      // there is already something at the target location
+      None
+    } else {
+      val oldUnits = this.troops
+      // do not move if there is nothing to move
+      oldUnits.get(from).map {
+        toBeMoved =>
+          copy(troops = oldUnits - from + (to -> toBeMoved))
+      }
     }
-  }
+
 }
 
 object BattleState {

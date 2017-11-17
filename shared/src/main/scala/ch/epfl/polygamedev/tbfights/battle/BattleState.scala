@@ -1,7 +1,6 @@
 package ch.epfl.polygamedev.tbfights.battle
 
 case class Position(x: Int, y: Int)
-case class TroopId(id: Int)
 case class TroopState(id: TroopId, troop: Troop)
 
 case class BattleState(map: BattleMap, troops: Map[Position, TroopState]) {
@@ -25,11 +24,17 @@ case class BattleState(map: BattleMap, troops: Map[Position, TroopState]) {
 }
 
 object BattleState {
-  val example1: BattleState = BattleState(
-    map = BattleMap(Size(30, 30)),
-    troops = Map(
-      Position(1, 2) -> TroopState(TroopId(1), HumanFlamethrower),
-      Position(2, 4) -> TroopState(TroopId(2), HumanFlamethrower)
-    )
+  def fill(map: BattleMap, placements: (Position, Troop)*) = BattleState(
+    map,
+    placements.zipWithIndex.map {
+      case ((position, troop), index) =>
+        position -> TroopState(index, troop)
+    }.toMap
+  )
+
+  val example1: BattleState = fill(
+    BattleMap(Size(30, 30)),
+    Position(1, 2) -> HumanFlamethrower,
+    Position(2, 4) -> HumanFlamethrower
   )
 }

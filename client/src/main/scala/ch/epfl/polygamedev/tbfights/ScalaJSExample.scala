@@ -35,7 +35,7 @@ object ScalaJSExample {
 
       var map: Tilemap = _
       var battleState: BattleState = BattleState.example1
-      var troops: Map[TroopId,Sprite] = Map.empty
+      var troops: Map[TroopId, Sprite] = Map.empty
       var seletectedTroop: Option[TroopId] = None
 
       override def create(game: Game): Unit = {
@@ -55,13 +55,12 @@ object ScalaJSExample {
             // head starts at the tile above
             val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
             sprite.inputEnabled = true
-            sprite.events.onInputDown.add(troopClicked _, sprite, 0, id.id)
+            sprite.events.onInputDown.add(troopClicked _, sprite, 0, id)
             id -> sprite
         }
       }
 
-      def troopClicked(sprite: Sprite, self: Sprite, id: Int): Unit = {
-        val troop = TroopId(id)
+      def troopClicked(sprite: Sprite, self: Sprite, troop: TroopId): Unit = {
         seletectedTroop = if (seletectedTroop.contains(troop)) {
           println("None selected")
           None
@@ -84,7 +83,7 @@ object ScalaJSExample {
             println(s"attempting to move $troop to $x,$y")
             // TODO do not use Option.get
             val troopPosition = battleState.troopPosition(troop).get
-            battleState.withMove(troopPosition,target) match {
+            battleState.withMove(troopPosition, target) match {
               case Some(newState) =>
                 animateMove(troop, troopPosition, target)
                 battleState = newState
@@ -96,7 +95,7 @@ object ScalaJSExample {
         }
       }
 
-      def animateMove(troopId: TroopId,from: Position, to: Position) = {
+      def animateMove(troopId: TroopId, from: Position, to: Position) = {
         //TODO animate
         //TODO do not use map.apply
         val sprite = troops(troopId)

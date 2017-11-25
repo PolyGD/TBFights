@@ -1,4 +1,6 @@
 # TBFights
+[![Build Status](https://travis-ci.org/PolyGD/TBFights.svg?branch=master)](https://travis-ci.org/PolyGD/TBFights)
+[![Heroku](https://heroku-badge.herokuapp.com/?app=heroku-badge)](https://heroku-badge.herokuapp.com/?app=heroku-badge)
 
 ## License
 The source code is licensed under Apache License Version 2.0. View full license at [LICENSE.code](LICENSE.code)

@@ -10,6 +10,7 @@ case class Ping(msg: String) extends InMessage
 case class Pong(msg: String) extends OutMessage
 
 case class MoveTroop(troopId: TroopId, from: Position, to: Position) extends InMessage
+case class BattleStarted(initialState: BattleState) extends OutMessage
 case class TroopMoved(troopId: TroopId, from: Position, to: Position, newState: BattleState) extends OutMessage
 case class BadTroopMove(troopId: TroopId, from: Position, to: Position) extends OutMessage
 
@@ -61,6 +62,7 @@ object JSONProtocol {
   implicit val moveTroopFormat = Json.format[MoveTroop]
   implicit val inMessageFormat = Json.format[InMessage]
 
+  implicit val battleStartedFormat = Json.format[BattleStarted]
   implicit val troopMovedFormat = Json.format[TroopMoved]
   implicit val badTroopMoveFormat = Json.format[BadTroopMove]
   implicit val outMessageFormat = Json.format[OutMessage]

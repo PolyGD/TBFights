@@ -1,7 +1,7 @@
 package ch.epfl.polygamedev.tbfights
 
 import ch.epfl.polygamedev.tbfights.battle._
-import ch.epfl.polygamedev.tbfights.messages.{Ping, Pong}
+import ch.epfl.polygamedev.tbfights.messages.{BattleStarted, Ping, Pong}
 import ch.epfl.polygamedev.tbfights.shared.SharedMessages
 import com.definitelyscala.phaser._
 import org.scalajs.dom
@@ -34,7 +34,8 @@ object ScalaJSExample {
       }
 
       var map: Tilemap = _
-      var battleState: BattleState = BattleState.example1
+      var battleStateOpt: Option[BattleState] = None
+      var initialized = false
       var troops: Map[TroopId, Sprite] = Map.empty
       var seletectedTroop: Option[TroopId] = None
 
@@ -49,14 +50,29 @@ object ScalaJSExample {
         layer1.events.onInputDown.add(mapClicked _, layer1, 0)
 
         layer1.resizeWorld()
+        initialized = true
+        placeTroops()
+      }
 
-        troops = battleState.troops.map {
-          case (Position(x, y), TroopState(id, troop)) =>
-            // head starts at the tile above
-            val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
-            sprite.inputEnabled = true
-            sprite.events.onInputDown.add(troopClicked _, sprite, 0, id)
-            id -> sprite
+      connector.listen {
+        case BattleStarted(initialState) =>
+          battleStateOpt = Some(initialState)
+          if (initialized) {
+            placeTroops()
+          }
+      }
+
+      def placeTroops(): Unit = {
+        battleStateOpt.foreach {
+          battleState =>
+            troops = battleState.troops.map {
+              case (Position(x, y), TroopState(id, troop)) =>
+                // head starts at the tile above
+                val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
+                sprite.inputEnabled = true
+                sprite.events.onInputDown.add(troopClicked _, sprite, 0, id)
+                id -> sprite
+            }
         }
       }
 
@@ -82,15 +98,19 @@ object ScalaJSExample {
           troop =>
             println(s"attempting to move $troop to $x,$y")
             // TODO do not use Option.get
-            val troopPosition = battleState.troopPosition(troop).get
-            battleState.withMove(troop, troopPosition, target) match {
-              case Some(newState) =>
-                animateMove(troop, troopPosition, target)
-                battleState = newState
-                println("Move successful")
-                seletectedTroop = None
-                println("Troop deselected")
-              case None => println("Move failed")
+
+            battleStateOpt.foreach {
+              battleState =>
+                val troopPosition = battleState.troopPosition(troop).get
+                battleState.withMove(troop, troopPosition, target) match {
+                  case Some(newState) =>
+                    animateMove(troop, troopPosition, target)
+                    battleStateOpt = Some(newState)
+                    println("Move successful")
+                    seletectedTroop = None
+                    println("Troop deselected")
+                  case None => println("Move failed")
+                }
             }
         }
       }

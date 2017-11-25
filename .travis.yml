@@ -4,4 +4,16 @@ scala:
 jdk:
   - oraclejdk8
 
-script: sbt ++$TRAVIS_SCALA_VERSION test
+test:
+  - sbt ++$TRAVIS_SCALA_VERSION test
+before_deploy:
+  - sbt universal:packageBin universal:packageZipTarball
+deploy:
+  provider: releases
+  api_key: "$GITHUB_OAUTH_TOKEN"
+  skip_cleanup: true
+  file:
+    - server/target/universal/*.tgz
+    - server/target/universal/*.zip
+  on:
+    tags: true

@@ -8,13 +8,15 @@ test:
   - sbt ++$TRAVIS_SCALA_VERSION test
 before_deploy:
   - sbt universal:packageBin universal:packageZipTarball
+  - export TGZ_FILE=$(ls server/target/universal/*.tgz)
+  - export ZIP_FILE=$(ls server/target/universal/*.zip)
 deploy:
   provider: releases
   api_key:
     secure: aLY6gth2rtWBnV4IwJ/wNIhcGBER6DhsPqZEM16rZjEZlk8Pya7m5sfOs+xUYGnWANUEJ0tiw1sO+y7SydA+b2Sr7QoKNYhzPtlrldmuFHCdh/Za9ccD5kWJR6A+s4BSE8NBjcpw8mkeKsTqa0S8A+wtEPcDuhuC9KLthgTNc19hep1LibSmSSQU12JZ5Y+rUiTckagjThONVP8gzfa5KHncLNONht+NCA2Nxz7rD1jVEv/ECATGRdp/dBKrqNMDcQZNk301srF/AFEFKgLlWQkDKktKLpnnaDsZob3/+DP09Ik0Ec0ghU8gtiBy34Lh+ioalG9CudM0u1kpfiqRTrqV6S7H83Ltvv/g3bhsYnx2giFuoITDCaoBi2ZJg561mIIlpI6eKt1EbjdRLkaghX3Ycy5epMyp1aYAGeFSO0Cc9NKgIPhSvQufQzn+rlOh7jbvB255sDMbV2nhoPPlpESKnc6MlTuO380FTPR//sQcnX0S//j4+0AtbC8oDpNzop7g/L9kHTRakMS9lULeCdSmjTz03kxAmkeGJG+q/51Np0thRPeN8rb9XEIiZnGS1TJ2xRQi8h65duyt0NHUXv3vZoPMBW1K1X/rWI7UWs7tiQeaYh35+8QNgV3SFChExP5832PsMsvOeprYWnVebmtxZqNi5m8zyc3PrT4w7A4=
   skip_cleanup: true
   file:
-    - server/target/universal/*.tgz
-    - server/target/universal/*.zip
+    - $TGZ_FILE
+    - $ZIP_FILE
   on:
     tags: true

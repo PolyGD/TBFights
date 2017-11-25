@@ -1,7 +1,7 @@
 package ch.epfl.polygamedev.tbfights
 
 import ch.epfl.polygamedev.tbfights.battle._
-import ch.epfl.polygamedev.tbfights.messages.{BattleStarted, Ping, Pong}
+import ch.epfl.polygamedev.tbfights.messages._
 import ch.epfl.polygamedev.tbfights.shared.SharedMessages
 import com.definitelyscala.phaser._
 import org.scalajs.dom
@@ -60,6 +60,13 @@ object ScalaJSExample {
           if (initialized) {
             placeTroops()
           }
+        case TroopMoved(who, from, to, newState) =>
+          animateMove(who, from, to)
+          battleStateOpt = Some(newState)
+          // TODO fix inconsistencies if present
+          println("Move successful")
+        case _:BadTroopMove =>
+          println("Move failed")
       }
 
       def placeTroops(): Unit = {
@@ -97,20 +104,14 @@ object ScalaJSExample {
         seletectedTroop.foreach {
           troop =>
             println(s"attempting to move $troop to $x,$y")
-            // TODO do not use Option.get
 
             battleStateOpt.foreach {
               battleState =>
+                // TODO do not use Option.get
                 val troopPosition = battleState.troopPosition(troop).get
-                battleState.withMove(troop, troopPosition, target) match {
-                  case Some(newState) =>
-                    animateMove(troop, troopPosition, target)
-                    battleStateOpt = Some(newState)
-                    println("Move successful")
-                    seletectedTroop = None
-                    println("Troop deselected")
-                  case None => println("Move failed")
-                }
+                connector ! MoveTroop(troop, troopPosition, target)
+                seletectedTroop = None
+                println("Troop deselected")
             }
         }
       }

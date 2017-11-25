@@ -3,10 +3,8 @@ package ch.epfl.polygamedev.tbfights.actors
 import akka.actor.{Actor, ActorRef, Props}
 import ch.epfl.polygamedev.tbfights.messages._
 
-class CommunicationActor(out: ActorRef) extends Actor {
+class CommunicationActor(out: ActorRef) extends Actor with NodeSingletonAddresses {
   out ! Pong("Welcome")
-
-  val battleActor: ActorRef = context.actorOf(BattleActor.props)
 
   battleActor ! BattleActor.Join
   def receive = {

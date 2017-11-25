@@ -4,7 +4,7 @@ import javax.inject._
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import ch.epfl.polygamedev.tbfights.actors.CommunicationActor
+import ch.epfl.polygamedev.tbfights.actors.{CommunicationActor, NodeSingletons}
 import ch.epfl.polygamedev.tbfights.messages.{InMessage, OutMessage}
 import ch.epfl.polygamedev.tbfights.messages.JSONProtocol._
 import ch.epfl.polygamedev.tbfights.shared.SharedMessages
@@ -14,6 +14,9 @@ import play.api.mvc._
 
 @Singleton
 class Application @Inject()(cc: ControllerComponents)(implicit system: ActorSystem, mat: Materializer) extends AbstractController(cc) {
+
+  println("Init singletons")
+  println(new NodeSingletons(system).all)
 
   def index = Action {
     Ok(views.html.index(SharedMessages.itWorks))

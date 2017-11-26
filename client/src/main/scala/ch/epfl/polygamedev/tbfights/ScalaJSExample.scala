@@ -1,7 +1,7 @@
 package ch.epfl.polygamedev.tbfights
 
 import ch.epfl.polygamedev.tbfights.battle._
-import ch.epfl.polygamedev.tbfights.messages.{Ping, Pong}
+import ch.epfl.polygamedev.tbfights.messages._
 import ch.epfl.polygamedev.tbfights.shared.SharedMessages
 import com.definitelyscala.phaser._
 import org.scalajs.dom
@@ -34,7 +34,8 @@ object ScalaJSExample {
       }
 
       var map: Tilemap = _
-      var battleState: BattleState = BattleState.example1
+      var battleStateOpt: Option[BattleState] = None
+      var initialized = false
       var troops: Map[TroopId, Sprite] = Map.empty
       var seletectedTroop: Option[TroopId] = None
 
@@ -49,14 +50,47 @@ object ScalaJSExample {
         layer1.events.onInputDown.add(mapClicked _, layer1, 0)
 
         layer1.resizeWorld()
+        initialized = true
+        placeTroops()
+      }
 
-        troops = battleState.troops.map {
-          case (Position(x, y), TroopState(id, troop)) =>
-            // head starts at the tile above
-            val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
-            sprite.inputEnabled = true
-            sprite.events.onInputDown.add(troopClicked _, sprite, 0, id)
-            id -> sprite
+      connector.listen {
+        case BattleStarted(initialState) =>
+          battleStateOpt = Some(initialState)
+          if (initialized) {
+            placeTroops()
+          }
+        case TroopMoved(troop, from, to, newState) =>
+          val predictedState = battleStateOpt.flatMap(_.withMove(troop, from, to))
+          battleStateOpt = Some(newState)
+          if (battleStateOpt == predictedState) {
+            println("Didn't expect this state, repositioning all troops")
+            println(s"predicted:$predictedState")
+            println(s"fromServer:$newState")
+            placeTroops()
+          } else {
+            animateMove(troop, from, to)
+            println("Move successful")
+          }
+        case _:BadTroopMove =>
+          println("Move failed")
+      }
+
+      def placeTroops(): Unit = {
+        troops.valuesIterator.foreach {
+          sprite =>
+            sprite.destroy()
+        }
+        battleStateOpt.foreach {
+          battleState =>
+            troops = battleState.troops.map {
+              case (Position(x, y), TroopState(id, troop)) =>
+                // head starts at the tile above
+                val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
+                sprite.inputEnabled = true
+                sprite.events.onInputDown.add(troopClicked _, sprite, 0, id)
+                id -> sprite
+            }
         }
       }
 
@@ -81,16 +115,14 @@ object ScalaJSExample {
         seletectedTroop.foreach {
           troop =>
             println(s"attempting to move $troop to $x,$y")
-            // TODO do not use Option.get
-            val troopPosition = battleState.troopPosition(troop).get
-            battleState.withMove(troop, troopPosition, target) match {
-              case Some(newState) =>
-                animateMove(troop, troopPosition, target)
-                battleState = newState
-                println("Move successful")
+
+            battleStateOpt.foreach {
+              battleState =>
+                // TODO do not use Option.get
+                val troopPosition = battleState.troopPosition(troop).get
+                connector ! MoveTroop(troop, troopPosition, target)
                 seletectedTroop = None
                 println("Troop deselected")
-              case None => println("Move failed")
             }
         }
       }

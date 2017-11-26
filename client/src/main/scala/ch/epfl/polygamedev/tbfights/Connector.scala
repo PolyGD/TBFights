@@ -22,7 +22,10 @@ class WebSocketConnector(url: String) extends Connector {
       val result = Json.fromJson[OutMessage](data)
       result match {
         case JsSuccess(msg, _) =>
-          listeners.foreach(_(msg))
+          listeners.foreach{
+            listener =>
+              listener.applyOrElse(msg, (_: OutMessage) => ())
+          }
         case JsError(errors) =>
           Console.err.println(s"Invalid JSON $data, Errors: $errors")
       }

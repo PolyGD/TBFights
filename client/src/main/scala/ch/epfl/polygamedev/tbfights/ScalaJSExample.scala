@@ -61,15 +61,26 @@ object ScalaJSExample {
             placeTroops()
           }
         case TroopMoved(who, from, to, newState) =>
-          animateMove(who, from, to)
+          val predictedState = battleStateOpt.flatMap(_.withMove(who, from, to))
           battleStateOpt = Some(newState)
-          // TODO fix inconsistencies if present
-          println("Move successful")
+          if (battleStateOpt == predictedState) {
+            println("Didn't expect this state, repositioning all troops")
+            println(s"predicted:$predictedState")
+            println(s"fromServer:$newState")
+            placeTroops()
+          } else {
+            animateMove(who, from, to)
+            println("Move successful")
+          }
         case _:BadTroopMove =>
           println("Move failed")
       }
 
       def placeTroops(): Unit = {
+        troops.valuesIterator.foreach {
+          sprite =>
+            sprite.destroy()
+        }
         battleStateOpt.foreach {
           battleState =>
             troops = battleState.troops.map {

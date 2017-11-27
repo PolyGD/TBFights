@@ -63,7 +63,7 @@ object ScalaJSExample {
         case TroopMoved(troop, from, to, newState) =>
           val predictedState = battleStateOpt.flatMap(_.withMove(troop, from, to))
           battleStateOpt = Some(newState)
-          if (battleStateOpt == predictedState) {
+          if (battleStateOpt != predictedState) {
             println("Didn't expect this state, repositioning all troops")
             println(s"predicted:$predictedState")
             println(s"fromServer:$newState")

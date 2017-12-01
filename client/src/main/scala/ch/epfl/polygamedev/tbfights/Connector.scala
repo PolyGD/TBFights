@@ -13,24 +13,39 @@ trait Connector {
 }
 
 class WebSocketConnector(url: String) extends Connector {
-  private val ws = new WebSocket(url)
-  private var listeners: Seq[PartialFunction[OutMessage,Unit]] = Seq.empty
+  private var ws: WebSocket = _
+  private var listeners: Seq[PartialFunction[OutMessage, Unit]] = Seq.empty
 
-  ws.onmessage = {
-    event =>
-      val data = Json.parse(event.data.toString)
-      val result = Json.fromJson[OutMessage](data)
-      result match {
-        case JsSuccess(msg, _) =>
-          listeners.foreach(_(msg))
-        case JsError(errors) =>
-          Console.err.println(s"Invalid JSON $data, Errors: $errors")
-      }
+  connect()
+
+  private def connect(): Unit = {
+    println(s"websocket connecting to $url")
+    ws = new WebSocket(url)
+    ws.onmessage = {
+      event =>
+        val data = Json.parse(event.data.toString)
+        val result = Json.fromJson[OutMessage](data)
+        result match {
+          case JsSuccess(msg, _) =>
+            listeners.foreach {
+              listener =>
+                listener.applyOrElse(msg, (_: OutMessage) => ())
+            }
+          case JsError(errors) =>
+            Console.err.println(s"Invalid JSON $data, Errors: $errors")
+        }
+    }
+    ws.onopen = {
+      _ =>
+        println("websocket open")
+    }
+    ws.onclose = {
+      _ =>
+        println("websocket closed")
+        connect()
+    }
   }
-  ws.onopen = {
-    _ =>
-      println("websocket open")
-  }
+
   def send(inMessage: InMessage): Unit = ws.send(Json.toJson(inMessage).toString)
 
   def listen(f: PartialFunction[OutMessage, Unit]): Unit = listeners :+= f

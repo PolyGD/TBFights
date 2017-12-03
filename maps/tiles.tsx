@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset name="grassAndWater" tilewidth="32" tileheight="32" tilecount="24" columns="6">
- <image source="../our-art/tiles/grassAndWater.png" width="192" height="128"/>
+ <image source="../server/public/images/our-art/tiles/grassAndWater.png" width="192" height="128"/>
  <terraintypes>
   <terrain name="water" tile="23"/>
   <terrain name="grass" tile="18"/>

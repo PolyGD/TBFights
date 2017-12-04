@@ -4,7 +4,7 @@ import ch.epfl.polygamedev.tbfights.battle._
 import ch.epfl.polygamedev.tbfights.messages._
 import com.definitelyscala.phaser._
 
-object ScalaJSExample {
+object GameMain {
 
   def main(args: Array[String]): Unit = {
 

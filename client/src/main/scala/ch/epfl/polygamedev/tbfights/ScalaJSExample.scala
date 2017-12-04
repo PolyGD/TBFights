@@ -27,9 +27,8 @@ object ScalaJSExample {
     val battleState = new State {
       override def preload(game: Game): Unit = {
         val TILED_JSON = 1
-        game.load.tilemap("badMap", "versionedAssets/maps/badmap.json", null, TILED_JSON)
-        game.load.image("placeholder", "versionedAssets/images/our-art/placeholder.png")
-        game.load.image("grass", "versionedAssets/images/our-art/tiles/grass.png")
+        game.load.tilemap("map1", "versionedAssets/maps/map1.json", null, TILED_JSON)
+        game.load.image("grassAndWater", "versionedAssets/images/our-art/tiles/grassAndWater.png")
         game.load.image("human1", "versionedAssets/images/our-art/units/human1/human1.png")
       }
 
@@ -40,12 +39,10 @@ object ScalaJSExample {
       var seletectedTroop: Option[TroopId] = None
 
       override def create(game: Game): Unit = {
-        map = game.add.tilemap("badMap")
-        map.addTilesetImage("placeholder")
-        map.addTilesetImage("grass")
+        map = game.add.tilemap("map1")
+        map.addTilesetImage("grassAndWater")
 
-        val layer1 = map.createLayer("Tile Layer 1")
-        val layer2 = map.createLayer("Tile Layer 2")
+        val layer1 = map.createLayer("Ground")
         layer1.inputEnabled = true
         layer1.events.onInputDown.add(mapClicked _, layer1, 0)
 

@@ -5,9 +5,8 @@ import javax.inject._
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import ch.epfl.polygamedev.tbfights.actors.{CommunicationActor, NodeSingletons}
-import ch.epfl.polygamedev.tbfights.messages.{InMessage, OutMessage}
 import ch.epfl.polygamedev.tbfights.messages.JSONProtocol._
-import ch.epfl.polygamedev.tbfights.shared.SharedMessages
+import ch.epfl.polygamedev.tbfights.messages.{InMessage, OutMessage}
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
@@ -19,7 +18,7 @@ class Application @Inject()(cc: ControllerComponents)(implicit system: ActorSyst
   println(new NodeSingletons(system).all)
 
   def index = Action {
-    Ok(views.html.index(SharedMessages.itWorks))
+    Ok(views.html.index())
   }
 
   implicit val messageFlowTransformer = MessageFlowTransformer.jsonMessageFlowTransformer[InMessage, OutMessage]

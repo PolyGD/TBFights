@@ -10,7 +10,7 @@ class CommunicationActor(out: ActorRef) extends Actor with NodeSingletonAddresse
   def receive = {
     case Ping(msg) =>
       out ! Pong(msg + "!")
-    case forwarded: MoveTroop =>
+    case forwarded: InMessage =>
       battleActor ! forwarded
     case forwarded: OutMessage =>
       out ! forwarded

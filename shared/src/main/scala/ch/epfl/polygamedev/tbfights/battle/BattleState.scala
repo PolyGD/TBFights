@@ -12,6 +12,8 @@ case class BattleState(map: BattleMap,
     case (position, TroopState(`id`, _, _)) => position
   }
 
+  def isMovableThisTurn(id: TroopId): Boolean = troopPosition(id).flatMap(troops.get).exists(_.owner == currentTurn)
+
   def withMove(who: TroopId, from: Position, to: Position): Option[BattleState] =
     if (!troopPosition(who).contains(from) || !map.isInBounds(from) || !map.isInBounds(to)) {
       // the troop shold be where we expect

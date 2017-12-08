@@ -80,6 +80,8 @@ object GameMain {
         case TurnEnded(newState) =>
           val predictedState = battleStateOpt.map(_.withEndTurn)
           battleStateOpt = Some(newState)
+          selectedTroop = None
+          println("SelectedTroop cleared")
           if (battleStateOpt != predictedState) {
             println("Didn't expect this state, repositioning all troops")
             println(s"predicted:$predictedState")
@@ -119,7 +121,7 @@ object GameMain {
         battleStateOpt.foreach {
           battleState =>
             troops = battleState.troops.map {
-              case (Position(x, y), TroopState(id, troop)) =>
+              case (Position(x, y), TroopState(id, troop, _)) =>
                 // head starts at the tile above
                 val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
                 sprite.inputEnabled = true
@@ -143,8 +145,13 @@ object GameMain {
           println("None selected")
           None
         } else {
-          println(s"Selected: $troop")
-          Some(troop)
+          if(battleStateOpt.exists(_.isMovableThisTurn(troop))) {
+            println(s"Selected: $troop")
+            Some(troop)
+          } else {
+            println(s"Cannot move this turn: $troop")
+            None
+          }
         }
       }
 

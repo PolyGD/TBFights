@@ -20,6 +20,7 @@ object GameMain {
         val TILED_JSON = 1
         game.load.tilemap("map1", "versionedAssets/maps/map1.json", null, TILED_JSON)
         game.load.image("grassAndWater", "versionedAssets/images/our-art/tiles/grassAndWater.png")
+        game.load.image("markers", "versionedAssets/images/our-art/tiles/markers.png")
         game.load.image("human1", "versionedAssets/images/our-art/units/human1/human1.png")
         game.load.image("knightbot", "versionedAssets/images/our-art/units/knightbot/knightbot.png")
         game.load.image("end-turn-btn", "versionedAssets/images/external-art/dabuttonfactory/button_end-turn-green.png")
@@ -32,16 +33,28 @@ object GameMain {
       var selectedTroop: Option[TroopId] = None
       var endTurnButton: Button = _
       var statusText: Text = _
+      var markerLayer: TilemapLayer = _
+
+      object markers {
+        val blueSquare = 1
+        val redSquare = 2
+        val blueStar = 3
+        val redStar = 4
+        val whiteSquare = 5
+      }
 
       override def create(game: Game): Unit = {
         map = game.add.tilemap("map1")
         map.addTilesetImage("grassAndWater")
+        map.addTilesetImage("markers")
 
         val layer1 = map.createLayer("Ground")
         layer1.inputEnabled = true
         layer1.events.onInputDown.add(mapClicked _, layer1, 0)
 
         layer1.resizeWorld()
+
+        markerLayer = map.createBlankLayer("Markers", 30, 30, 32, 32)
 
         endTurnButton = game.add.button(game.width - 100, 30 * 32, "end-turn-btn", endTurn _, endTurnButton)
         endTurnButton.x = game.width - endTurnButton.width
@@ -121,9 +134,14 @@ object GameMain {
         battleStateOpt.foreach {
           battleState =>
             troops = battleState.troops.map {
-              case (Position(x, y), TroopState(id, troop, _)) =>
+              case (Position(x, y), TroopState(id, troop, owner)) =>
                 // head starts at the tile above
                 val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
+                val marker = owner match {
+                  case Blue => markers.blueSquare
+                  case Red => markers.redSquare
+                }
+                map.putTile(marker, x, y, markerLayer)
                 sprite.inputEnabled = true
                 sprite.events.onInputDown.add(troopClicked _, sprite, 0, id)
                 id -> sprite

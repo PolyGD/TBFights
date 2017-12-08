@@ -28,6 +28,16 @@ object JSONProtocol {
     }
   }
 
+  implicit val playerFormat = new Format[Player]{
+    def writes(o: Player) = JsString(o.name)
+
+    def reads(json: JsValue) = json match {
+      case JsString(name) =>
+        Player.fromName(name).fold[JsResult[Player]](JsError(s"unknown troop $name"))(JsSuccess(_))
+      case _ => JsError()
+    }
+  }
+
   implicit val sizeFormat = Json.format[Size]
   implicit val positionFormat = Json.format[Position]
   implicit val troopStateFormat = Json.format[TroopState]

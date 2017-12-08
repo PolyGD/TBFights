@@ -7,11 +7,11 @@ sealed trait Troop {
 
 object Troop {
   def fromName(name: String): Option[Troop] = name match {
-    case "human1" => Some(HumanFlamethrower)
+    case HumanFlamethrower.name => Some(HumanFlamethrower)
     case _ => None
   }
 }
 
 case object HumanFlamethrower extends Troop {
-  def name = "human1"
+  val name = "human1"
 }

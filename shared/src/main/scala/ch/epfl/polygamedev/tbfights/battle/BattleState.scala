@@ -4,7 +4,10 @@ case class Position(x: Int, y: Int)
 
 case class TroopState(id: TroopId, troop: Troop)
 
-case class BattleState(map: BattleMap, troops: Map[Position, TroopState]) {
+case class BattleState(map: BattleMap,
+                       playersInTurnOrder: Seq[Player],
+                       troops: Map[Position, TroopState],
+                       currentTurn: Player) {
   def troopPosition(id: TroopId): Option[Position] = troops.collectFirst {
     case (position, TroopState(`id`, _)) => position
   }
@@ -26,15 +29,24 @@ case class BattleState(map: BattleMap, troops: Map[Position, TroopState]) {
       }
     }
 
+  def withEndTurn: BattleState = {
+    val currentIndex = playersInTurnOrder.indexOf(currentTurn)
+    val nextIndex = if(currentIndex >= playersInTurnOrder.size -1) 0 else currentIndex + 1
+    val nextTurn = playersInTurnOrder(nextIndex)
+    copy(currentTurn = nextTurn)
+  }
+
 }
 
 object BattleState {
   def fill(map: BattleMap, placements: (Position, Troop)*) = BattleState(
     map,
+    Seq(Red, Blue),
     placements.zipWithIndex.map {
       case ((position, troop), index) =>
         position -> TroopState(index, troop)
-    }.toMap
+    }.toMap,
+    Red
   )
 
   val example1: BattleState = fill(

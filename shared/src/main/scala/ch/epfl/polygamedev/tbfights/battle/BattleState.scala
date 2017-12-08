@@ -2,14 +2,14 @@ package ch.epfl.polygamedev.tbfights.battle
 
 case class Position(x: Int, y: Int)
 
-case class TroopState(id: TroopId, troop: Troop)
+case class TroopState(id: TroopId, troop: Troop, owner: Player)
 
 case class BattleState(map: BattleMap,
                        playersInTurnOrder: Seq[Player],
                        troops: Map[Position, TroopState],
                        currentTurn: Player) {
   def troopPosition(id: TroopId): Option[Position] = troops.collectFirst {
-    case (position, TroopState(`id`, _)) => position
+    case (position, TroopState(`id`, _, _)) => position
   }
 
   def withMove(who: TroopId, from: Position, to: Position): Option[BattleState] =
@@ -39,24 +39,24 @@ case class BattleState(map: BattleMap,
 }
 
 object BattleState {
-  def fill(map: BattleMap, placements: (Position, Troop)*) = BattleState(
+  def fill(map: BattleMap, placements: ((Position, Troop), Player)*) = BattleState(
     map,
     Seq(Red, Blue),
     placements.zipWithIndex.map {
-      case ((position, troop), index) =>
-        position -> TroopState(index, troop)
+      case (((position, troop),owner), index) =>
+        position -> TroopState(index, troop, owner)
     }.toMap,
     Red
   )
 
   val example1: BattleState = fill(
     BattleMap(Size(30, 30)),
-    Position(4, 2) -> HumanFlamethrower,
-    Position(7, 3) -> HumanFlamethrower,
-    Position(7, 7) -> KnightBot,
+    Position(4, 2) -> HumanFlamethrower -> Red,
+    Position(7, 3) -> HumanFlamethrower -> Red,
+    Position(7, 7) -> KnightBot -> Red,
 
-    Position(21, 22) -> HumanFlamethrower,
-    Position(19, 25) -> HumanFlamethrower,
-    Position(16, 22) -> KnightBot
+    Position(21, 22) -> HumanFlamethrower -> Blue,
+    Position(19, 25) -> HumanFlamethrower -> Blue,
+    Position(16, 22) -> KnightBot -> Blue
   )
 }

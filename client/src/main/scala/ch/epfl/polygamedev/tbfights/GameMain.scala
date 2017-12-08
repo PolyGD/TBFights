@@ -13,20 +13,22 @@ object GameMain {
       case Pong(msg) => println(s"Got ponged:$msg")
     }
 
-    val game = new Game(30*32, 30*32, Phaser.CANVAS, "gameArea")
+    val game = new Game(30*32, 30*32 + 50, Phaser.CANVAS, "gameArea")
     val battleState = new State {
       override def preload(game: Game): Unit = {
         val TILED_JSON = 1
         game.load.tilemap("map1", "versionedAssets/maps/map1.json", null, TILED_JSON)
         game.load.image("grassAndWater", "versionedAssets/images/our-art/tiles/grassAndWater.png")
         game.load.image("human1", "versionedAssets/images/our-art/units/human1/human1.png")
+        game.load.image("end-turn-btn", "versionedAssets/images/our-art/buttons/button_end-turn-green.png")
       }
 
       var map: Tilemap = _
       var battleStateOpt: Option[BattleState] = None
       var initialized = false
       var troops: Map[TroopId, Sprite] = Map.empty
-      var seletectedTroop: Option[TroopId] = None
+      var selectedTroop: Option[TroopId] = None
+      var endTurnButton: Button = _
 
       override def create(game: Game): Unit = {
         map = game.add.tilemap("map1")
@@ -37,6 +39,9 @@ object GameMain {
         layer1.events.onInputDown.add(mapClicked _, layer1, 0)
 
         layer1.resizeWorld()
+
+        endTurnButton = game.add.button(game.width - 100, 30 * 32, "end-turn-btn", endTurn _, endTurnButton)
+        endTurnButton.x = game.width - endTurnButton.width
         initialized = true
         placeTroops()
       }
@@ -81,8 +86,12 @@ object GameMain {
         }
       }
 
+      def endTurn(button: Button, self: Button): Unit = {
+        println("End Turn")
+      }
+
       def troopClicked(sprite: Sprite, self: Sprite, troop: TroopId): Unit = {
-        seletectedTroop = if (seletectedTroop.contains(troop)) {
+        selectedTroop = if (selectedTroop.contains(troop)) {
           println("None selected")
           None
         } else {
@@ -99,7 +108,7 @@ object GameMain {
         val y = (rawY / 32).toInt
         val target = Position(x, y)
         println(s"Estimated square at $x,$y")
-        seletectedTroop.foreach {
+        selectedTroop.foreach {
           troop =>
             println(s"attempting to move $troop to $x,$y")
 
@@ -108,7 +117,7 @@ object GameMain {
                 // TODO do not use Option.get
                 val troopPosition = battleState.troopPosition(troop).get
                 connector ! MoveTroop(troop, troopPosition, target)
-                seletectedTroop = None
+                selectedTroop = None
                 println("Troop deselected")
             }
         }

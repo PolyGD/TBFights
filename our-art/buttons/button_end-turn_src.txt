@@ -1,0 +1,6 @@
+Green
+https://dabuttonfactory.com#t=End+turn&f=Calibri-Bold&ts=26&tc=fff&hp=20&vp=8&c=5&bgt=gradient&bgc=0f0&ebgc=274e13&it=png
+Yellow
+https://dabuttonfactory.com#t=End+turn&f=Calibri-Bold&ts=26&tc=fff&hp=20&vp=8&c=5&bgt=gradient&bgc=ffe599&ebgc=7f6000&it=png
+Grey
+https://dabuttonfactory.com#t=End+turn&f=Calibri-Bold&ts=26&tc=fff&hp=20&vp=8&c=5&bgt=gradient&bgc=ccc&ebgc=444&it=png

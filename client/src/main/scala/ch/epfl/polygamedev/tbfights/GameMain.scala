@@ -35,14 +35,6 @@ object GameMain {
       var statusText: Text = _
       var markerLayer: TilemapLayer = _
 
-      object markers {
-        val blueSquare = 1
-        val redSquare = 2
-        val blueStar = 3
-        val redStar = 4
-        val whiteSquare = 5
-      }
-
       override def create(game: Game): Unit = {
         map = game.add.tilemap("map1")
         map.addTilesetImage("grassAndWater")
@@ -138,8 +130,8 @@ object GameMain {
                 // head starts at the tile above
                 val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
                 val marker = owner match {
-                  case Blue => markers.blueSquare
-                  case Red => markers.redSquare
+                  case Blue => 1 + 5 * 1 + 2 //blue corners (1,2)
+                  case Red =>  1 + 5 * 0 + 2 //red cornerers (0,2)
                 }
                 map.putTile(marker, x, y, markerLayer)
                 sprite.inputEnabled = true

@@ -14,6 +14,9 @@ case class BattleStarted(initialState: BattleState) extends OutMessage
 case class TroopMoved(troop: TroopId, from: Position, to: Position, newState: BattleState) extends OutMessage
 case class BadTroopMove(troop: TroopId, from: Position, to: Position) extends OutMessage
 
+case class EndTurn(player: Player) extends InMessage
+case class TurnEnded(newState: BattleState) extends OutMessage
+
 object JSONProtocol {
   implicit val pingFormat = Json.format[Ping]
   implicit val pongFormat = Json.format[Pong]
@@ -70,10 +73,12 @@ object JSONProtocol {
   implicit val battleStateFormat = Json.format[BattleState]
 
   implicit val moveTroopFormat = Json.format[MoveTroop]
+  implicit val endTurnFormat = Json.format[EndTurn]
   implicit val inMessageFormat = Json.format[InMessage]
 
   implicit val battleStartedFormat = Json.format[BattleStarted]
   implicit val troopMovedFormat = Json.format[TroopMoved]
   implicit val badTroopMoveFormat = Json.format[BadTroopMove]
+  implicit val turnEnded = Json.format[TurnEnded]
   implicit val outMessageFormat = Json.format[OutMessage]
 }

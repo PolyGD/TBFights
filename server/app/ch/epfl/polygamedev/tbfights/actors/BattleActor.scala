@@ -2,7 +2,7 @@ package ch.epfl.polygamedev.tbfights.actors
 
 import akka.actor.{Actor, ActorRef, Props}
 import ch.epfl.polygamedev.tbfights.battle.BattleState
-import ch.epfl.polygamedev.tbfights.messages.{BadTroopMove, BattleStarted, MoveTroop, TroopMoved}
+import ch.epfl.polygamedev.tbfights.messages._
 
 class BattleActor extends Actor {
   import BattleActor._
@@ -19,6 +19,10 @@ class BattleActor extends Actor {
           battleState = newState
           subscribers.foreach(_ ! TroopMoved(troopId, from, to, newState))
       }
+    case EndTurn(player) if battleState.currentTurn == player =>
+      val newState = battleState.withEndTurn
+      battleState = newState
+      subscribers.foreach(_ ! TurnEnded(newState))
     case Join =>
       subscribers +:= sender
       sender ! BattleStarted(battleState)

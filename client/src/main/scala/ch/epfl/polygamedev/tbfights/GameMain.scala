@@ -29,6 +29,7 @@ object GameMain {
       var troops: Map[TroopId, Sprite] = Map.empty
       var selectedTroop: Option[TroopId] = None
       var endTurnButton: Button = _
+      var statusText: Text = _
 
       override def create(game: Game): Unit = {
         map = game.add.tilemap("map1")
@@ -42,6 +43,7 @@ object GameMain {
 
         endTurnButton = game.add.button(game.width - 100, 30 * 32, "end-turn-btn", endTurn _, endTurnButton)
         endTurnButton.x = game.width - endTurnButton.width
+        statusText = game.add.text(0, 32 * 30, "")
         initialized = true
         placeTroops()
       }
@@ -50,7 +52,7 @@ object GameMain {
         case BattleStarted(initialState) =>
           battleStateOpt = Some(initialState)
           if (initialized) {
-            placeTroops()
+            resetBoard()
           }
         case TroopMoved(troop, from, to, newState) =>
           val predictedState = battleStateOpt.flatMap(_.withMove(troop, from, to))
@@ -59,13 +61,41 @@ object GameMain {
             println("Didn't expect this state, repositioning all troops")
             println(s"predicted:$predictedState")
             println(s"fromServer:$newState")
-            placeTroops()
+            resetBoard()
           } else {
             animateMove(troop, from, to)
             println("Move successful")
           }
         case _:BadTroopMove =>
           println("Move failed")
+        case TurnEnded(newState) =>
+          val predictedState = battleStateOpt.map(_.withEndTurn)
+          battleStateOpt = Some(newState)
+          if (battleStateOpt != predictedState) {
+            println("Didn't expect this state, repositioning all troops")
+            println(s"predicted:$predictedState")
+            println(s"fromServer:$newState")
+            resetBoard()
+          } else {
+            println("Turn changed")
+            updateStatusText()
+          }
+      }
+
+      def resetBoard(): Unit = {
+        placeTroops()
+        updateStatusText()
+      }
+
+      private def updateStatusText():  Unit = {
+        battleStateOpt.fold {
+          statusText.text = ""
+        } {
+          battleState =>
+            val text = s"${battleState.currentTurn.name}'s turn"
+            statusText.text = text
+            println(text)
+        }
       }
 
       def placeTroops(): Unit = {
@@ -87,7 +117,12 @@ object GameMain {
       }
 
       def endTurn(button: Button, self: Button): Unit = {
-        println("End Turn")
+        println("End Turn clicked")
+        battleStateOpt.foreach {
+          battleState =>
+            println(s"EndTurn(${battleState.currentTurn})")
+            connector ! EndTurn(battleState.currentTurn)
+        }
       }
 
       def troopClicked(sprite: Sprite, self: Sprite, troop: TroopId): Unit = {

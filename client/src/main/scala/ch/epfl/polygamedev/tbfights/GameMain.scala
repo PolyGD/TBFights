@@ -3,6 +3,7 @@ package ch.epfl.polygamedev.tbfights
 import ch.epfl.polygamedev.tbfights.battle._
 import ch.epfl.polygamedev.tbfights.messages._
 import com.definitelyscala.phaser._
+import scala.scalajs.js
 
 object GameMain {
 
@@ -43,9 +44,16 @@ object GameMain {
 
         endTurnButton = game.add.button(game.width - 100, 30 * 32, "end-turn-btn", endTurn _, endTurnButton)
         endTurnButton.x = game.width - endTurnButton.width
-        statusText = game.add.text(0, 32 * 30, "")
+
+        val textStyle = js.Dynamic.literal("font" -> "12px Arial").asInstanceOf[PhaserTextStyle]
+        textStyle.font = "Arial"
+        textStyle.fontSize = 36
+        textStyle.fill = "#ffffff"
+        statusText = game.add.text(0, 30*32, "", textStyle)
+        statusText.visible = true
+
         initialized = true
-        placeTroops()
+        resetBoard()
       }
 
       connector.listen {
@@ -94,7 +102,11 @@ object GameMain {
           battleState =>
             val text = s"${battleState.currentTurn.name}'s turn"
             statusText.text = text
-            println(text)
+            statusText.fill = battleState.currentTurn match {
+              case Red => "#ff0000"
+              case Blue => "#19dbf2"
+              case _ => "#ffffff"
+            }
         }
       }
 

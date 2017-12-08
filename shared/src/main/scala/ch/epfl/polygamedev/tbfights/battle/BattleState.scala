@@ -23,7 +23,7 @@ case class BattleState(map: BattleMap,
     } else {
       val oldUnits = this.troops
       // do not move if there is nothing to move
-      oldUnits.get(from).map {
+      oldUnits.get(from).filter(_.owner == currentTurn).map {
         toBeMoved =>
           copy(troops = oldUnits - from + (to -> toBeMoved))
       }

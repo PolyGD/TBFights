@@ -85,7 +85,7 @@ object GameMain {
         case TurnEnded(newState) =>
           val predictedState = battleStateOpt.map(_.withEndTurn)
           battleStateOpt = Some(newState)
-          selectedTroop = None
+          selectTroop(None)
           println("SelectedTroop cleared")
           if (battleStateOpt != predictedState) {
             println("Didn't expect this state, repositioning all troops")
@@ -101,6 +101,7 @@ object GameMain {
       def resetBoard(): Unit = {
         placeTroops()
         updateStatusText()
+        selectTroop(None)
       }
 
       private def updateStatusText():  Unit = {
@@ -129,15 +130,26 @@ object GameMain {
               case (Position(x, y), TroopState(id, troop, owner)) =>
                 // head starts at the tile above
                 val sprite = game.add.sprite(32 * x, 32 * (y - 1), troop.resourceName)
-                val marker = owner match {
-                  case Blue => 1 + 5 * 1 + 2 //blue corners (1,2)
-                  case Red =>  1 + 5 * 0 + 2 //red cornerers (0,2)
-                }
+                val marker = idleTroopMarker(owner)
                 map.putTile(marker, x, y, markerLayer)
                 sprite.inputEnabled = true
                 sprite.events.onInputDown.add(troopClicked _, sprite, 0, id)
                 id -> sprite
             }
+        }
+      }
+
+      private def idleTroopMarker(owner: Player) = {
+        owner match {
+          case Blue => 1 + 5 * 1 + 2 //blue corners (1,2)
+          case Red => 1 + 5 * 0 + 2 //red corners (0,2)
+        }
+      }
+
+      private def selectedTroopMarker(owner: Player) = {
+        owner match {
+          case Blue => 1 + 5 * 1 + 3 //blue solid tile (1,3)
+          case Red => 1 + 5 * 0 + 3 //red  solid tile (0,3)
         }
       }
 
@@ -151,18 +163,40 @@ object GameMain {
       }
 
       def troopClicked(sprite: Sprite, self: Sprite, troop: TroopId): Unit = {
-        selectedTroop = if (selectedTroop.contains(troop)) {
+        if (selectedTroop.contains(troop)) {
           println("None selected")
-          None
+          selectTroop(None)
         } else {
-          if(battleStateOpt.exists(_.isMovableThisTurn(troop))) {
+          if (battleStateOpt.exists(_.isMovableThisTurn(troop))) {
             println(s"Selected: $troop")
-            Some(troop)
+
+            selectTroop(Some(troop))
           } else {
             println(s"Cannot move this turn: $troop")
-            None
+            selectTroop(None)
           }
         }
+      }
+
+      def selectTroop(troopIdOpt: Option[TroopId]) = {
+        selectedTroop.foreach {
+          troop =>
+            for {
+              battleState <- battleStateOpt
+              pos@Position(x, y) <- battleState.troopPosition(troop)
+              troop <- battleState.troops.get(pos)
+            } map.putTile(idleTroopMarker(troop.owner), x, y, markerLayer)
+        }
+
+        troopIdOpt.foreach {
+          troop =>
+            for {
+              battleState <- battleStateOpt
+              pos@Position(x, y) <- battleState.troopPosition(troop)
+              troop <- battleState.troops.get(pos)
+            } map.putTile(selectedTroopMarker(troop.owner), x, y, markerLayer)
+        }
+        selectedTroop = troopIdOpt
       }
 
       def mapClicked(mapLayer: TilemapLayer, self: TilemapLayer): Unit = {
@@ -182,7 +216,7 @@ object GameMain {
                 // TODO do not use Option.get
                 val troopPosition = battleState.troopPosition(troop).get
                 connector ! MoveTroop(troop, troopPosition, target)
-                selectedTroop = None
+                selectTroop(None)
                 println("Troop deselected")
             }
         }
@@ -194,6 +228,13 @@ object GameMain {
         val sprite = troops(troopId)
         sprite.x = to.x * 32
         sprite.y = (to.y - 1) * 32
+        map.putTile(null, from.x, from.y, markerLayer)
+
+        for {
+          battleState <- battleStateOpt
+          pos@Position(x, y) <- battleState.troopPosition(troopId)
+          troop <- battleState.troops.get(pos)
+        } map.putTile(idleTroopMarker(troop.owner), to.x, to.y, markerLayer)
       }
 
       override def update(game: Game): Unit = {

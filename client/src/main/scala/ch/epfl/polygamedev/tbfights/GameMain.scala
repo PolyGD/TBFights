@@ -3,6 +3,8 @@ package ch.epfl.polygamedev.tbfights
 import ch.epfl.polygamedev.tbfights.battle._
 import ch.epfl.polygamedev.tbfights.messages._
 import com.definitelyscala.phaser._
+import scala.scalajs.js
+
 
 object GameMain {
 
@@ -127,8 +129,8 @@ object GameMain {
         //TODO animate
         //TODO do not use map.apply
         val sprite = troops(troopId)
-        sprite.x = to.x * 32
-        sprite.y = (to.y - 1) * 32
+        val tween = game.add.tween(sprite).to(js.Dynamic.literal("x" -> to.x * 32,"y" -> (to.y - 1) * 32),1000,"Quart.easeOut",true,0,0,false)
+        tween.onComplete.add( (t: Tween,self: Tween)=>game.tweens.remove(t),tween,0)
       }
 
       override def update(game: Game): Unit = {

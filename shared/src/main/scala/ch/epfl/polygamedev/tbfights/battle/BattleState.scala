@@ -51,7 +51,12 @@ object BattleState {
 
   val example1: BattleState = fill(
     BattleMap(Size(30, 30)),
-    Position(1, 2) -> HumanFlamethrower,
-    Position(2, 4) -> HumanFlamethrower
+    Position(4, 2) -> HumanFlamethrower,
+    Position(7, 3) -> HumanFlamethrower,
+    Position(7, 7) -> KnightBot,
+
+    Position(21, 22) -> HumanFlamethrower,
+    Position(19, 25) -> HumanFlamethrower,
+    Position(16, 22) -> KnightBot
   )
 }

@@ -21,6 +21,7 @@ object GameMain {
         game.load.tilemap("map1", "versionedAssets/maps/map1.json", null, TILED_JSON)
         game.load.image("grassAndWater", "versionedAssets/images/our-art/tiles/grassAndWater.png")
         game.load.image("human1", "versionedAssets/images/our-art/units/human1/human1.png")
+        game.load.image("knightbot", "versionedAssets/images/our-art/units/knightbot/knightbot.png")
         game.load.image("end-turn-btn", "versionedAssets/images/external-art/dabuttonfactory/button_end-turn-green.png")
       }
 

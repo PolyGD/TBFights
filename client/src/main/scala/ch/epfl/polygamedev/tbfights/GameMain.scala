@@ -226,8 +226,10 @@ object GameMain {
         //TODO animate
         //TODO do not use map.apply
         val sprite = troops(troopId)
-        sprite.x = to.x * 32
-        sprite.y = (to.y - 1) * 32
+
+        val tween = game.add.tween(sprite).to(js.Dynamic.literal("x" -> to.x * 32,"y" -> (to.y - 1) * 32),1000,"Quart.easeOut",true,0,0,false)
+        tween.onComplete.add( (t: Tween,self: Tween)=>game.tweens.remove(t),tween,0)
+
         map.putTile(null, from.x, from.y, markerLayer)
 
         for {
@@ -235,6 +237,7 @@ object GameMain {
           pos@Position(x, y) <- battleState.troopPosition(troopId)
           troop <- battleState.troops.get(pos)
         } map.putTile(idleTroopMarker(troop.owner), to.x, to.y, markerLayer)
+
       }
 
       override def update(game: Game): Unit = {
